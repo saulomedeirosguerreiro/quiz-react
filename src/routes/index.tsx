@@ -7,7 +7,7 @@ import Performance from '../pages/Performance';
 const Routes: React.FC = () => (
     <Switch>
         <Route path="/" exact component={Home}/>
-        <Route path="/:category/question" component={Inquiry}/>
+        <Route path="/:categoryId/question/:questionId" component={Inquiry}/>
         <Route path="/:category/performance" component={Performance}/>
     </Switch>
 );

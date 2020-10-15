@@ -71,11 +71,6 @@ export const Response = styled.button`
         }
 `;
 
-
-export const StarRating = styled.span`
-
-`;
-
 export const Footer = styled.footer`
     width: 100vw;
     height: 3.5rem;

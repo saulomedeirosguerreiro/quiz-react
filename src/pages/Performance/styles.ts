@@ -57,3 +57,33 @@ export const  Level = styled.div`
         border-left: 1px solid #000;
         padding: 5px;
 `;
+
+export const Footer = styled.footer`
+    width: 100vw;
+    height: 3.5rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position: absolute;
+    bottom: 0;
+    background-color: #fff;
+    box-shadow:  0px 0px 10px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+
+    a{
+        width: 55vw;
+        max-width: 930px;
+        background-color: #4d8af0;
+        color: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        text-decoration:none;
+        border:1px solid #d3d3d3;
+        text-align:center;
+
+
+        &:hover{
+         background: ${shade(0.1,'#4d8af0' )};
+        }
+    }
+`;

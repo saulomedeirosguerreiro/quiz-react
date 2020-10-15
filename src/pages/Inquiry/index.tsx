@@ -1,16 +1,68 @@
-import React, { useCallback,useState } from 'react';
+import React, { useCallback,useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import {FaStar, FaArrowRight} from 'react-icons/fa';
-import { Container,Footer, QuestionHeader,ResponseOptions,Response,Content,Question,StarRating} from './styles';
+import { Container,Footer, QuestionHeader,ResponseOptions,Response,Content,Question} from './styles';
 import {Link} from 'react-router-dom';
 import {useToast} from '../../context/ToastContext';
+import api from '../../services/api';
+
+interface Question{
+    category:string;
+    difficulty: 'hard' | 'medium' | 'easy';
+    question:string;
+    correct_answer: string;
+    incorrect_answers: Array<string>;
+    answers: Array<string>;
+}
+
+const stars = {
+    hard: <>
+            <FaStar color="#353c58"/>
+            <FaStar color="#353c58"/>
+            <FaStar color="#353c58" />
+           </>,
+    medium: <>
+             <FaStar color="#353c58"/>
+             <FaStar color="#353c58"/>
+             <FaStar color="#d3d3d3" />
+            </>,
+
+    easy: <>
+            <FaStar color="#353c58"/>
+            <FaStar color="#d3d3d3"/>
+            <FaStar color="#d3d3d3" />
+          </>
+  };
+
 const Inquiry: React.FC = () => {
+    const [question, setQuestion] = useState<Question>({} as Question);
     const [isFocused, setFocused] = useState(false);
    const [isQuestionAnswered, setQuestionAnswered] = useState(false);
-   const {category} = useParams();
+   const {categoryId, questionId} = useParams();
 
-   const {addToast, removeAllToast} = useToast();
+  const {addToast, removeAllToast} = useToast();
+
+  useEffect(() => {
+        async function loadQuestion(){
+            const response =  await api.get('/api.php', {
+                params: {
+                    amount:1,
+                    category: categoryId,
+                    difficulty:'medium',
+                    type:'multiple'
+                }
+            });
+
+            const {results} = response.data;
+            const {category, difficulty, question, incorrect_answers,correct_answer} = results[0] as Omit<Question, 'answers'>;
+            const answers = [...incorrect_answers,correct_answer ];
+            setQuestion({category, difficulty, question, incorrect_answers,correct_answer,answers });
+        }
+
+        loadQuestion();
+
+  },[categoryId]);
 
   const handleResponse = useCallback(() => {
     addToast({title: 'Você errou!', type: 'error'});
@@ -23,35 +75,25 @@ const Inquiry: React.FC = () => {
 
   return (
       <Container>
-          <Header title={category}/>
+          <Header title={question.category}/>
           <Content>
             <QuestionHeader>
-                <strong>Questão 1</strong>
-                <StarRating >
-                        <FaStar color="#353c58"/>
-                        <FaStar color="#353c58"/>
-                        <FaStar color="#d3d3d3" />
-                        <span>Médio</span>
-                </StarRating>
+                <strong>Questão {questionId}</strong>
+                <span>
+                        {stars[question.difficulty]}
+                        <span>{question.difficulty}</span>
+                </span>
             </QuestionHeader>
+
             <Question>
-                Sobre a conhecida Idade dos Metais,
-                na transição entre a Pré-História e a História,
-                é possível afirmar que
+               {question.question}
             </Question>
             <ResponseOptions>
-                    <Response onClick={() => setFocused(true)} >
-                        Não existe ligação entre o uso dos metais e a formação de grande impérios
-                    </Response>
-                    <Response onClick={() => setFocused(true)} >
-                        Apenas o bronze pode efetivamente ser apresentado como o primeiro metal utilizado
-                    </Response>
-                    <Response onClick={() => setFocused(true)}>
-                        Foi marcada pela utilização do cobre, bronze e ferro, na produção de armas, instrumentos agrícola
-                    </Response>
-                    <Response onClick={() => setFocused(true)}>
-                        A vida nômade dos primeiros grupos humanos foi um estímulo para o uso dos metais
-                    </Response>
+                {question.answers?.map(answer => (
+                    <Response key={answer} onClick={() => setFocused(true)}>
+                    {answer}
+                </Response>
+                ))}
             </ResponseOptions>
           </Content>
          {isFocused &&

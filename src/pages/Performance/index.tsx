@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
-import { Container, Content, Avatar,OverallResult, ResultByLevel, Level} from './styles';
-
+import { Container, Content, Avatar,OverallResult, ResultByLevel, Level,Footer} from './styles';
+import {Link} from 'react-router-dom';
 import avatar from '../../assets/avatar.svg';
 
 const Performance: React.FC = () => {
@@ -49,7 +49,11 @@ const Performance: React.FC = () => {
                   </Level>
               </ResultByLevel>
           </Content>
-
+          <Footer>
+                <Link to="/" >
+                Voltar ao início
+                </Link>
+            </Footer>
       </Container>
   );
 }
