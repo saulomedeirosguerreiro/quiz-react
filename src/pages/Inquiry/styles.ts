@@ -111,6 +111,22 @@ export const Footer = styled.footer`
 
     }
 
+    button{
+        width: 65vw;
+        max-width: 930px;
+        background-color: #4d8af0;
+        color: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        text-decoration:none;
+        border:1px solid #d3d3d3;
+        text-align:center;
 
+
+        &:hover{
+         background: ${shade(0.1,'#4d8af0' )};
+        }
+
+    }
 
 `;

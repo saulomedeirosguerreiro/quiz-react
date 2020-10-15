@@ -1,4 +1,4 @@
-import React, { useCallback,useState, useEffect } from 'react';
+import React, { useCallback,useState, useEffect, MouseEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import {FaStar, FaArrowRight} from 'react-icons/fa';
@@ -6,6 +6,13 @@ import { Container,Footer, QuestionHeader,ResponseOptions,Response,Content,Quest
 import {Link} from 'react-router-dom';
 import {useToast} from '../../context/ToastContext';
 import api from '../../services/api';
+import { useDispatch } from 'react-redux';
+import { addCategoryToQuiz,addQuestionToQuiz } from '../../store/modules/quiz/actions';
+
+interface InquiryParams{
+    categoryId:string;
+    questionId:string;
+}
 
 interface Question{
     category:string;
@@ -36,12 +43,15 @@ const stars = {
   };
 
 const Inquiry: React.FC = () => {
-    const [question, setQuestion] = useState<Question>({} as Question);
-    const [isFocused, setFocused] = useState(false);
+   const [question, setQuestion] = useState<Question>({} as Question);
+   const [isFocused, setFocused] = useState(false);
    const [isQuestionAnswered, setQuestionAnswered] = useState(false);
-   const {categoryId, questionId} = useParams();
+   const [chosenAnswer, setChosenAnswer] = useState('');
+   const {categoryId, questionId} = useParams<InquiryParams>();
 
   const {addToast, removeAllToast} = useToast();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
         async function loadQuestion(){
@@ -58,20 +68,44 @@ const Inquiry: React.FC = () => {
             const {category, difficulty, question, incorrect_answers,correct_answer} = results[0] as Omit<Question, 'answers'>;
             const answers = [...incorrect_answers,correct_answer ];
             setQuestion({category, difficulty, question, incorrect_answers,correct_answer,answers });
+            dispatch(addCategoryToQuiz({id: Number(categoryId), name: category}));
+
         }
+
 
         loadQuestion();
 
-  },[categoryId]);
+        return () => {
+            removeAllToast();
+        }
 
-  const handleResponse = useCallback(() => {
-    addToast({title: 'Você errou!', type: 'error'});
-    setQuestionAnswered(true);
-  },[addToast]);
+  },[categoryId,removeAllToast, dispatch]);
+
+
+  const handleResponse= useCallback((event: MouseEvent<HTMLButtonElement>) => {
+        setFocused(true)
+        setChosenAnswer(event.currentTarget.innerHTML);
+  },[]);
+
+  const handleResponseAction = useCallback(() => {
+    const isHit = chosenAnswer === question.correct_answer;
+
+    if(isHit)
+        addToast({title: 'Você acertou!', type: 'success'});
+    else
+        addToast({title: 'Você errou!', type: 'error'});
+
+   setQuestionAnswered(true);
+  },[addToast,question,chosenAnswer]);
 
   const handleNextQuestion = useCallback(() => {
+
+    const isHit = chosenAnswer === question.correct_answer;
+    dispatch(addQuestionToQuiz({difficulty: question.difficulty,chosen_answer:chosenAnswer,correct_answer:question.correct_answer,isHit}, Number(categoryId)));
     removeAllToast();
-  },[removeAllToast]);
+    setFocused(false);
+    setQuestionAnswered(false)
+  },[removeAllToast,question,chosenAnswer, dispatch,categoryId]);
 
   return (
       <Container>
@@ -90,7 +124,7 @@ const Inquiry: React.FC = () => {
             </Question>
             <ResponseOptions>
                 {question.answers?.map(answer => (
-                    <Response key={answer} onClick={() => setFocused(true)}>
+                    <Response key={answer} onClick={(event: MouseEvent<HTMLButtonElement>) => handleResponse(event)}>
                     {answer}
                 </Response>
                 ))}
@@ -98,8 +132,8 @@ const Inquiry: React.FC = () => {
           </Content>
          {isFocused &&
              <Footer>
-                {!isQuestionAnswered? <Link to="/categoria/question" onClick={handleResponse}>Responder</Link>
-                :<Link to="/" onClick={handleNextQuestion}>
+                {!isQuestionAnswered? <button type="button" onClick={handleResponseAction}>Responder</button>
+                :<Link to={`/${categoryId}/question/2`} onClick={handleNextQuestion}>
                 Avançar
                 <FaArrowRight/>
                 </Link>}

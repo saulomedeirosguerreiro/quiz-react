@@ -11,13 +11,10 @@ export const Title = styled.div`
 `;
 
 export const Categories = styled.ul`
-    height: 70vh;
     display:flex;
     flex-direction: column;
     align-items:center;
     justify-content:center;
-    overflow-y: auto;
-    overflow-x: hidden;
 
     &::-webkit-scrollbar{
         display: none;
