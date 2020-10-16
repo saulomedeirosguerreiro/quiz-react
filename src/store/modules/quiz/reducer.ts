@@ -38,6 +38,20 @@ const quiz: Reducer<IQuizState> = (state = INITIAL_STATE, action) => {
 
                 break;
             }
+            case 'UPDATE_LASTLEVEL_OF_CATEGORY':{
+                const {category} = action.payload;
+
+                const categoryIndex = draft.categories.findIndex(item => item.id === category.id);
+
+                if(categoryIndex >= 0){
+                    const categoryFound = draft.categories[categoryIndex];
+                    categoryFound.lastLevel = category.lastLevel;
+                }
+                else
+                    return draft;
+
+                break;
+            }
             default: {
                 return draft;
             }

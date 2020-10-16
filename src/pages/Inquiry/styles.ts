@@ -21,12 +21,6 @@ export const QuestionHeader = styled.div`
     justify-content:space-between;
     margin: 1em 0;
     text-align: center;
-
-
-    span{
-        color:#353c58;
-        margin-left: 5px;
-    }
 `;
 
 export const Question = styled.p`

@@ -1,7 +1,7 @@
 import React, { useCallback,useState, useEffect, useMemo, MouseEvent } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
-import {FaStar, FaArrowRight} from 'react-icons/fa';
+import {FaArrowRight} from 'react-icons/fa';
 import { Container,Footer, QuestionHeader,ResponseOptions,Response,Content,Question} from './styles';
 import {Link} from 'react-router-dom';
 import {useToast} from '../../context/ToastContext';
@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addCategoryToQuiz,addQuestionToQuiz } from '../../store/modules/quiz/actions';
 import { IState } from '../../store';
 import { ICategory } from '../../store/modules/quiz/types';
+import StarsRating from '../../components/StarsRating';
 
 interface InquiryParams{
     categoryId:string;
@@ -24,25 +25,6 @@ interface Question{
     answers: Array<string>;
 }
 
-const stars = {
-    hard: <>
-            <FaStar color="#353c58"/>
-            <FaStar color="#353c58"/>
-            <FaStar color="#353c58" />
-           </>,
-    medium: <>
-             <FaStar color="#353c58"/>
-             <FaStar color="#353c58"/>
-             <FaStar color="#d3d3d3" />
-            </>,
-
-    easy: <>
-            <FaStar color="#353c58"/>
-            <FaStar color="#d3d3d3"/>
-            <FaStar color="#d3d3d3" />
-          </>
-  };
-
 const Inquiry: React.FC = () => {
    const [question, setQuestion] = useState<Question>({} as Question);
    const [isFocused, setFocused] = useState(false);
@@ -51,6 +33,13 @@ const Inquiry: React.FC = () => {
    const {categoryId} = useParams<InquiryParams>();
    const currentCategory = useSelector<IState, ICategory | undefined>(state => {
     return state.quiz.categories.find(category => category.id === Number(categoryId));
+   });
+
+   const level = useSelector<IState, 'hard' |'easy'| 'medium'>(state => {
+    const category = state.quiz.categories.find(category => category.id === Number(categoryId));
+        if(category && category.lastLevel)
+            return category.lastLevel;
+        return 'medium';
    });
 
   const history = useHistory();
@@ -65,6 +54,7 @@ const Inquiry: React.FC = () => {
   },[currentCategory]);
 
 
+
   useEffect(() => {
 
         if(numberOfQuestion === 11){
@@ -73,12 +63,11 @@ const Inquiry: React.FC = () => {
         }
 
         async function loadQuestion(){
-
             const response =  await api.get('/api.php', {
                 params: {
                     amount:1,
                     category: categoryId,
-                    difficulty:'medium',
+                    difficulty:level,
                     type:'multiple'
                 }
             });
@@ -97,7 +86,7 @@ const Inquiry: React.FC = () => {
             removeAllToast();
         }
 
-  },[categoryId,removeAllToast, dispatch,numberOfQuestion,history]);
+  },[categoryId,removeAllToast, dispatch,numberOfQuestion,history,level]);
 
 
 
@@ -132,10 +121,7 @@ const Inquiry: React.FC = () => {
           <Content>
             <QuestionHeader>
                 <strong>Questão {numberOfQuestion}</strong>
-                <span>
-                        {stars[question.difficulty]}
-                        <span>{question.difficulty}</span>
-                </span>
+                <StarsRating categoryId={Number(categoryId)}/>
             </QuestionHeader>
 
             <Question>

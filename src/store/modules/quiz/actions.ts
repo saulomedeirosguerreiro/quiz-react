@@ -18,3 +18,13 @@ export function addQuestionToQuiz(question: IQuestion, categoryId: number){
         }
     }
 }
+
+
+export function updateLastLevelOfCategory(category: Pick<ICategory, 'id' | 'lastLevel'>){
+    return {
+        type: 'UPDATE_LASTLEVEL_OF_CATEGORY',
+        payload: {
+            category
+        }
+    }
+}

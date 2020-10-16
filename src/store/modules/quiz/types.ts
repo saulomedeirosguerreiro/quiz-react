@@ -9,6 +9,7 @@ export interface ICategory{
     id: number;
     name:string;
     questions: Array<IQuestion>;
+    lastLevel: 'easy' | 'medium' | 'hard';
     hits: number;
     miss:number;
 }
