@@ -1,17 +1,18 @@
-import React, { useCallback,useState, useEffect, MouseEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useCallback,useState, useEffect, useMemo, MouseEvent } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import {FaStar, FaArrowRight} from 'react-icons/fa';
 import { Container,Footer, QuestionHeader,ResponseOptions,Response,Content,Question} from './styles';
 import {Link} from 'react-router-dom';
 import {useToast} from '../../context/ToastContext';
 import api from '../../services/api';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addCategoryToQuiz,addQuestionToQuiz } from '../../store/modules/quiz/actions';
+import { IState } from '../../store';
+import { ICategory } from '../../store/modules/quiz/types';
 
 interface InquiryParams{
     categoryId:string;
-    questionId:string;
 }
 
 interface Question{
@@ -47,14 +48,32 @@ const Inquiry: React.FC = () => {
    const [isFocused, setFocused] = useState(false);
    const [isQuestionAnswered, setQuestionAnswered] = useState(false);
    const [chosenAnswer, setChosenAnswer] = useState('');
-   const {categoryId, questionId} = useParams<InquiryParams>();
+   const {categoryId} = useParams<InquiryParams>();
+   const currentCategory = useSelector<IState, ICategory | undefined>(state => {
+    return state.quiz.categories.find(category => category.id === Number(categoryId));
+   });
 
+  const history = useHistory();
   const {addToast, removeAllToast} = useToast();
 
   const dispatch = useDispatch();
 
+  const  numberOfQuestion = useMemo(() => {
+    if(!currentCategory)
+        return 1;
+    return  currentCategory.questions.length + 1;
+  },[currentCategory]);
+
+
   useEffect(() => {
+
+        if(numberOfQuestion === 11){
+            history.push(`/${categoryId}/performance`);
+            return;
+        }
+
         async function loadQuestion(){
+
             const response =  await api.get('/api.php', {
                 params: {
                     amount:1,
@@ -69,7 +88,6 @@ const Inquiry: React.FC = () => {
             const answers = [...incorrect_answers,correct_answer ];
             setQuestion({category, difficulty, question, incorrect_answers,correct_answer,answers });
             dispatch(addCategoryToQuiz({id: Number(categoryId), name: category}));
-
         }
 
 
@@ -79,7 +97,8 @@ const Inquiry: React.FC = () => {
             removeAllToast();
         }
 
-  },[categoryId,removeAllToast, dispatch]);
+  },[categoryId,removeAllToast, dispatch,numberOfQuestion,history]);
+
 
 
   const handleResponse= useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -112,7 +131,7 @@ const Inquiry: React.FC = () => {
           <Header title={question.category}/>
           <Content>
             <QuestionHeader>
-                <strong>Questão {questionId}</strong>
+                <strong>Questão {numberOfQuestion}</strong>
                 <span>
                         {stars[question.difficulty]}
                         <span>{question.difficulty}</span>
@@ -133,9 +152,9 @@ const Inquiry: React.FC = () => {
          {isFocused &&
              <Footer>
                 {!isQuestionAnswered? <button type="button" onClick={handleResponseAction}>Responder</button>
-                :<Link to={`/${categoryId}/question/2`} onClick={handleNextQuestion}>
-                Avançar
-                <FaArrowRight/>
+                :<Link to={numberOfQuestion < 10? `/${categoryId}/question` : `/${categoryId}/performance` } onClick={handleNextQuestion}>
+                {numberOfQuestion < 10? 'Avançar' : 'Finalizar'}
+                {numberOfQuestion < 10 && <FaArrowRight/>}
                 </Link>}
             </Footer>
          }

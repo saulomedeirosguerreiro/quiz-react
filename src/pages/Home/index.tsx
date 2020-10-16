@@ -30,7 +30,7 @@ const Home: React.FC = () => {
         </Title>
         <Categories>
             {categories.map(category => (
-                <Link key={category.id} to={`${category.id}/question/1`}>{category.name}</Link>
+                <Link key={category.id} to={`${category.id}/question`}>{category.name}</Link>
             ))}
         </Categories>
 

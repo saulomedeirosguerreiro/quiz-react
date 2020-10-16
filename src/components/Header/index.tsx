@@ -1,7 +1,7 @@
 import React from 'react';
 import {Container} from './styles';
 interface HeaderProps{
-    title: string;
+    title: string | undefined;
 }
 
 const Header: React.FC<HeaderProps> = ({title}) => (
