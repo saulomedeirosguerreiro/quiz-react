@@ -1,9 +1,8 @@
-import styled , {css} from 'styled-components';
+import styled, { css } from 'styled-components';
 
 interface ToastProps {
   type?: 'info' | 'error' | 'success';
 }
-
 
 const toastTypeVariations = {
   info: css`
@@ -23,17 +22,16 @@ const toastTypeVariations = {
     > svg {
       color: #008f26;
     }
-  `
+  `,
 };
-
 
 export const Container = styled.div<ToastProps>`
   width: 60vw;
   height: 30vh;
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   align-items: center;
-  justify-content:center;
+  justify-content: center;
   border-radius: 10px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   background: #f3f3f3;
@@ -49,7 +47,7 @@ export const Container = styled.div<ToastProps>`
     margin: 4px 12px 0 0;
   }
 
-  strong{
+  strong {
     margin-top: 10px;
   }
 

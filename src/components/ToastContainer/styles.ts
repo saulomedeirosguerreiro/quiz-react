@@ -8,4 +8,3 @@ export const Container = styled.div`
   padding: 30px;
   overflow: hidden;
 `;
-

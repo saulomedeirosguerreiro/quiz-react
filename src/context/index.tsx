@@ -1,16 +1,14 @@
 import React from 'react';
 
-import {ToastProvider} from './ToastContext';
-import {Provider} from 'react-redux';
+import { Provider } from 'react-redux';
+import { ToastProvider } from './ToastContext';
 import store from '../store';
-const AppProvider:React.FC = ({children}) => {
 
+const AppProvider: React.FC = ({ children }) => {
   return (
-      <Provider store={store}>
-         <ToastProvider>
-             {children}
-         </ToastProvider>
-      </Provider>
+    <Provider store={store}>
+      <ToastProvider>{children}</ToastProvider>
+    </Provider>
   );
 };
 
