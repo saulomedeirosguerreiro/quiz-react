@@ -2,11 +2,19 @@ import { Reducer } from 'redux';
 import produce from 'immer';
 import { IQuizState } from './types';
 
-const INITIAL_STATE: IQuizState = {
-  categories: [],
-};
+/* const list =
 
-const quiz: Reducer<IQuizState> = (state = INITIAL_STATE, action) => {
+const INITIAL_STATE: IQuizState = {
+  categories: [...list];
+}; */
+
+function initialState(): IQuizState {
+  const categoriesStorage = localStorage.getItem('@Quiz:categories');
+  if (categoriesStorage) return { categories: JSON.parse(categoriesStorage) };
+  return { categories: [] };
+}
+
+const quiz: Reducer<IQuizState> = (state = initialState(), action) => {
   return produce(state, (draft) => {
     switch (action.type) {
       case 'ADD_CATEGORY_TO_QUIZ': {
@@ -34,11 +42,17 @@ const quiz: Reducer<IQuizState> = (state = INITIAL_STATE, action) => {
         if (categoryIndex >= 0) {
           const category = draft.categories[categoryIndex];
           if (category.questions.length < 10) {
-            category.questions.push(question) && question.isHit
+            category.questions.push({ ...question, date_answer: new Date() }) &&
+            question.isHit
               ? (category.hits += 1)
               : (category.miss += 1);
           }
         }
+
+        localStorage.setItem(
+          '@Quiz:categories',
+          JSON.stringify(draft.categories),
+        );
 
         return draft;
       }

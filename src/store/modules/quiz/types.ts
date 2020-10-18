@@ -2,6 +2,7 @@ export interface IQuestion {
   difficulty: 'easy' | 'medium' | 'hard';
   chosen_answer: string;
   correct_answer: string;
+  date_answer?: Date;
   isHit: boolean;
 }
 
