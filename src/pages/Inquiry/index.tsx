@@ -20,97 +20,79 @@ import {
 } from './styles';
 
 import { useToast } from '../../context/ToastContext';
-import api from '../../services/api';
+import QuizController from '../../controllers/QuizController';
 import {
   addCategoryToQuiz,
   addQuestionToQuiz,
 } from '../../store/modules/quiz/actions';
 import { IState } from '../../store';
-import { ICategory } from '../../store/modules/quiz/types';
+import { IQuestionAPI } from '../../services/types';
+import { IQuestion } from '../../store/modules/quiz/types';
 import StarsRating from '../../components/StarsRating';
 
 interface InquiryParams {
   categoryId: string;
 }
 
-interface Question {
-  category: string;
-  difficulty: 'hard' | 'medium' | 'easy';
-  question: string;
-  correct_answer: string;
-  incorrect_answers: Array<string>;
-  answers: Array<string>;
+interface StateRedux {
+  level: 'hard' | 'easy' | 'medium';
+  questions: Array<IQuestion>;
 }
 
 const Inquiry: React.FC = () => {
-  const [currentQuestion, setCurrentQuestion] = useState<Question>(
-    {} as Question,
-  );
   const [isFocused, setFocused] = useState(false);
   const [isQuestionAnswered, setQuestionAnswered] = useState(false);
-  const [chosenAnswer, setChosenAnswer] = useState('');
-  const { categoryId } = useParams<InquiryParams>();
-  const currentCategory = useSelector<IState, ICategory | undefined>(
-    (state) => {
-      return state.quiz.categories.find(
-        (category) => category.id === Number(categoryId),
-      );
-    },
-  );
-
-  const level = useSelector<IState, 'hard' | 'easy' | 'medium'>((state) => {
-    const categoryFound = state.quiz.categories.find(
-      (item) => item.id === Number(categoryId),
-    );
-    if (categoryFound && categoryFound.lastLevel)
-      return categoryFound.lastLevel;
-    return 'medium';
-  });
-
   const history = useHistory();
+  const dispatch = useDispatch();
   const { addToast, removeAllToast } = useToast();
 
-  const dispatch = useDispatch();
+  const [currentQuestion, setCurrentQuestion] = useState<IQuestionAPI>(
+    {} as IQuestionAPI,
+  );
+  const [chosenAnswer, setChosenAnswer] = useState('');
 
-  const numberOfQuestion = useMemo(() => {
-    if (!currentCategory) return 1;
-    return currentCategory.questions.length + 1;
-  }, [currentCategory]);
+  const { categoryId } = useParams<InquiryParams>();
+  const categoryIdNumber = Number(categoryId);
+
+  const { level, questions } = useSelector<IState, StateRedux>((state) => {
+    const categoryFound = state.quiz.categories.find(
+      (item) => item.id === categoryIdNumber,
+    );
+
+    const stateRedux = {} as StateRedux;
+    if (categoryFound) {
+      stateRedux.questions = categoryFound.questions;
+      stateRedux.level = categoryFound.lastLevel
+        ? categoryFound.lastLevel
+        : QuizController.INITIAL_LEVEL;
+    } else {
+      stateRedux.questions = [];
+      stateRedux.level = QuizController.INITIAL_LEVEL;
+    }
+
+    return stateRedux;
+  });
+
+  const numberOfQuestion = useMemo(() => questions.length + 1, [questions]);
 
   useEffect(() => {
-    if (numberOfQuestion === 11) {
-      history.push(`/${categoryId}/performance`);
+    if (numberOfQuestion > QuizController.MAX_NUMBER_QUESTIONS) {
+      history.push(`/${categoryIdNumber}/performance`);
       return;
     }
 
     async function loadQuestion(): Promise<void> {
-      const response = await api.get('/api.php', {
-        params: {
-          amount: 1,
-          category: categoryId,
-          difficulty: level,
-          type: 'multiple',
-        },
-      });
-
-      const { results } = response.data;
-      const {
-        category,
-        difficulty,
-        question,
-        incorrect_answers,
-        correct_answer,
-      } = results[0] as Omit<Question, 'answers'>;
-      const answers = [...incorrect_answers, correct_answer];
-      setCurrentQuestion({
-        category,
-        difficulty,
-        question,
-        incorrect_answers,
-        correct_answer,
-        answers,
-      });
-      dispatch(addCategoryToQuiz({ id: Number(categoryId), name: category }));
+      const loadedQuestion = await QuizController.nextQuestion(
+        categoryIdNumber,
+        level,
+      );
+      setCurrentQuestion(loadedQuestion);
+      dispatch(
+        addCategoryToQuiz({
+          id: categoryIdNumber,
+          name: loadedQuestion.category,
+        }),
+      );
     }
 
     loadQuestion();
@@ -119,39 +101,50 @@ const Inquiry: React.FC = () => {
     return () => {
       removeAllToast();
     };
-  }, [categoryId, removeAllToast, dispatch, numberOfQuestion, history, level]);
+  }, [
+    removeAllToast,
+    dispatch,
+    numberOfQuestion,
+    history,
+    level,
+    categoryIdNumber,
+  ]);
 
-  const handleResponse = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setFocused(true);
-    setChosenAnswer(event.currentTarget.innerHTML);
-  }, []);
+  const handleChoiceAnswer = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      setFocused(true);
+      setChosenAnswer(event.currentTarget.innerHTML);
+    },
+    [],
+  );
 
-  const handleResponseAction = useCallback(() => {
-    const isHit = chosenAnswer === currentQuestion.correct_answer;
+  const handleAnswer = useCallback(() => {
+    const isHit = QuizController.isHit(chosenAnswer);
 
     if (isHit) addToast({ title: 'You are right!', type: 'success' });
     else addToast({ title: 'You are wrong !', type: 'error' });
 
     setQuestionAnswered(true);
-  }, [addToast, currentQuestion, chosenAnswer]);
+  }, [addToast, chosenAnswer]);
 
   const handleNextQuestion = useCallback(() => {
-    const isHit = chosenAnswer === currentQuestion.correct_answer;
+    const { difficulty, correct_answer } = QuizController.question;
+
     dispatch(
       addQuestionToQuiz(
         {
-          difficulty: currentQuestion.difficulty,
+          difficulty,
           chosen_answer: chosenAnswer,
-          correct_answer: currentQuestion.correct_answer,
-          isHit,
+          correct_answer,
+          isHit: QuizController.isHit(chosenAnswer),
         },
-        Number(categoryId),
+        categoryIdNumber,
       ),
     );
     removeAllToast();
     setFocused(false);
     setQuestionAnswered(false);
-  }, [removeAllToast, currentQuestion, chosenAnswer, dispatch, categoryId]);
+  }, [removeAllToast, chosenAnswer, dispatch, categoryIdNumber]);
 
   return (
     <Container>
@@ -162,7 +155,7 @@ const Inquiry: React.FC = () => {
             Question
             {` ${numberOfQuestion}`}
           </strong>
-          <StarsRating categoryId={Number(categoryId)} />
+          <StarsRating categoryId={categoryIdNumber} />
         </QuestionHeader>
 
         <Question>{currentQuestion.question}</Question>
@@ -171,7 +164,7 @@ const Inquiry: React.FC = () => {
             <Response
               key={answer}
               onClick={(event: MouseEvent<HTMLButtonElement>) =>
-                handleResponse(event)}
+                handleChoiceAnswer(event)}
             >
               {answer}
             </Response>
@@ -181,20 +174,24 @@ const Inquiry: React.FC = () => {
       {isFocused && (
         <Footer>
           {!isQuestionAnswered ? (
-            <button type="button" onClick={handleResponseAction}>
+            <button type="button" onClick={handleAnswer}>
               Answer
             </button>
           ) : (
             <Link
               to={
-                numberOfQuestion < 10
-                  ? `/${categoryId}/question`
-                  : `/${categoryId}/performance`
+                numberOfQuestion < QuizController.MAX_NUMBER_QUESTIONS
+                  ? `/${categoryIdNumber}/question`
+                  : `/${categoryIdNumber}/performance`
               }
               onClick={handleNextQuestion}
             >
-              {numberOfQuestion < 10 ? 'Advance' : 'Finish'}
-              {numberOfQuestion < 10 && <FaArrowRight />}
+              {numberOfQuestion < QuizController.MAX_NUMBER_QUESTIONS
+                ? 'Advance'
+                : 'Finish'}
+              {numberOfQuestion < QuizController.MAX_NUMBER_QUESTIONS && (
+                <FaArrowRight />
+              )}
             </Link>
           )}
         </Footer>

@@ -2,13 +2,17 @@ import React, { useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container } from './styles';
-
-import { updateLastLevelOfCategory } from '../../store/modules/quiz/actions';
 import { IState } from '../../store';
-import { ICategory } from '../../store/modules/quiz/types';
+import { IQuestion } from '../../store/modules/quiz/types';
+import QuizController from '../../controllers/QuizController';
 
 interface StarsRatingProps {
   categoryId: number;
+}
+
+interface StateRedux {
+  level: 'hard' | 'easy' | 'medium';
+  questions: Array<IQuestion>;
 }
 
 const stars = {
@@ -37,83 +41,30 @@ const stars = {
 };
 
 const StarsRating: React.FC<StarsRatingProps> = ({ categoryId }) => {
-  const category = useSelector<IState, ICategory | undefined>((state) => {
-    return state.quiz.categories.find((item) => item.id === categoryId);
-  });
-
-  const level = useSelector<IState, 'hard' | 'easy' | 'medium'>((state) => {
+  const { level, questions } = useSelector<IState, StateRedux>((state) => {
     const categoryFound = state.quiz.categories.find(
-      (item) => item.id === Number(categoryId),
+      (item) => item.id === categoryId,
     );
-    if (categoryFound && categoryFound.lastLevel)
-      return categoryFound.lastLevel;
-    return 'medium';
+
+    const stateRedux = {} as StateRedux;
+    if (categoryFound) {
+      stateRedux.questions = categoryFound.questions;
+      stateRedux.level = categoryFound.lastLevel
+        ? categoryFound.lastLevel
+        : QuizController.INITIAL_LEVEL;
+    } else {
+      stateRedux.questions = [];
+      stateRedux.level = QuizController.INITIAL_LEVEL;
+    }
+
+    return stateRedux;
   });
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!category) {
-      dispatch(
-        updateLastLevelOfCategory({ id: categoryId, lastLevel: 'medium' }),
-      );
-      return;
-    }
-
-    const questionsLenght = category.questions.length;
-    if (questionsLenght < 2) {
-      dispatch(
-        updateLastLevelOfCategory({ id: categoryId, lastLevel: 'medium' }),
-      );
-      return;
-    }
-
-    const lastQuestion = category.questions[questionsLenght - 1];
-    const penultQuestion = category.questions[questionsLenght - 2];
-
-    if (
-      lastQuestion.isHit &&
-      penultQuestion.isHit &&
-      lastQuestion.difficulty === penultQuestion.difficulty
-    ) {
-      if (lastQuestion.difficulty === 'medium') {
-        dispatch(
-          updateLastLevelOfCategory({ id: categoryId, lastLevel: 'hard' }),
-        );
-        return;
-      }
-      if (lastQuestion.difficulty === 'easy') {
-        dispatch(
-          updateLastLevelOfCategory({ id: categoryId, lastLevel: 'medium' }),
-        );
-        return;
-      }
-    } else if (
-      !lastQuestion.isHit &&
-      !penultQuestion.isHit &&
-      lastQuestion.difficulty === penultQuestion.difficulty
-    ) {
-      if (lastQuestion.difficulty === 'medium') {
-        dispatch(
-          updateLastLevelOfCategory({ id: categoryId, lastLevel: 'easy' }),
-        );
-        return;
-      }
-      if (lastQuestion.difficulty === 'hard') {
-        dispatch(
-          updateLastLevelOfCategory({ id: categoryId, lastLevel: 'medium' }),
-        );
-        return;
-      }
-    }
-
-    dispatch(
-      updateLastLevelOfCategory({
-        id: categoryId,
-        lastLevel: lastQuestion.difficulty,
-      }),
-    );
-  }, [category, categoryId, dispatch]);
+    dispatch(QuizController.getUpdateLastLevelAction(questions, categoryId));
+  }, [questions, categoryId, dispatch]);
 
   return (
     <Container>

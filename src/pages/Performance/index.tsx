@@ -14,68 +14,85 @@ import {
 
 import avatar from '../../assets/avatar.svg';
 import { IState } from '../../store';
-import { ICategory } from '../../store/modules/quiz/types';
+import { IQuestion } from '../../store/modules/quiz/types';
 
 interface PerformanceParams {
   categoryId: string;
 }
 
+interface StateRedux {
+  questions: Array<IQuestion>;
+  name: string;
+  hits: number;
+  misses: number;
+}
+
 const Performance: React.FC = () => {
   const { categoryId } = useParams<PerformanceParams>();
-  const currentCategory = useSelector<IState, ICategory | undefined>(
+  const { questions, name, hits, misses } = useSelector<IState, StateRedux>(
     (state) => {
-      return state.quiz.categories.find(
-        (category) => category.id === Number(categoryId),
+      const categoryFound = state.quiz.categories.find(
+        (item) => item.id === Number(categoryId),
       );
+
+      const stateRedux = {} as StateRedux;
+
+      if (categoryFound) {
+        stateRedux.questions = categoryFound.questions;
+        stateRedux.name = categoryFound.name;
+        stateRedux.hits = categoryFound.hits;
+        stateRedux.misses = categoryFound.miss;
+      } else {
+        stateRedux.questions = [];
+        stateRedux.name = '';
+        stateRedux.hits = 0;
+        stateRedux.misses = 0;
+      }
+
+      return stateRedux;
     },
   );
 
   const hitsEasy = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) => question.isHit === true && question.difficulty === 'easy',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   const missEasy = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) => question.isHit === false && question.difficulty === 'easy',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   const hitsMedium = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) => question.isHit === true && question.difficulty === 'medium',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   const missMedium = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) =>
         question.isHit === false && question.difficulty === 'medium',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   const hitsHard = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) => question.isHit === true && question.difficulty === 'hard',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   const missHard = useMemo(() => {
-    if (!currentCategory) return 0;
-    return currentCategory.questions.filter(
+    return questions.filter(
       (question) => question.isHit === false && question.difficulty === 'hard',
     ).length;
-  }, [currentCategory]);
+  }, [questions]);
 
   return (
     <Container>
-      <Header title={currentCategory?.name} />
+      <Header title={name} />
       <Content>
         <Avatar>
           <img src={avatar} alt="avatar" />
@@ -86,11 +103,11 @@ const Performance: React.FC = () => {
         </Avatar>
         <OverallResult>
           <div>
-            <strong>{currentCategory?.hits || 0}</strong>
+            <strong>{hits}</strong>
             <span>hits</span>
           </div>
           <div>
-            <strong>{currentCategory?.miss || 0}</strong>
+            <strong>{misses}</strong>
             <span>misses</span>
           </div>
         </OverallResult>
