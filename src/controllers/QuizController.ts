@@ -34,7 +34,7 @@ class QuizController {
       params: {
         amount: 1,
         category: categoryId,
-        difficulty: level,
+        difficulty: level || 'medium',
         type: 'multiple',
       },
     });
@@ -68,16 +68,11 @@ class QuizController {
   static getUpdateLastLevelAction(
     questions: Array<IQuestion>,
     categoryId: number,
-  ): IAction {
-    const questionsLenght = questions.length;
-    if (questionsLenght < 2)
-      return updateLastLevelOfCategory({
-        id: categoryId,
-        lastLevel: QuizController.INITIAL_LEVEL,
-      });
+  ): IAction | null {
+    if (questions.length < 2) return null;
 
-    const lastQuestion = questions[questionsLenght - 1];
-    const penultQuestion = questions[questionsLenght - 2];
+    const lastQuestion = questions[questions.length - 1];
+    const penultQuestion = questions[questions.length - 2];
 
     const isTwoConsecutiveHits = lastQuestion.isHit && penultQuestion.isHit;
     const isTwoConsecutiveMisses = !lastQuestion.isHit && !penultQuestion.isHit;
@@ -102,10 +97,7 @@ class QuizController {
         });
     }
 
-    return updateLastLevelOfCategory({
-      id: categoryId,
-      lastLevel: lastQuestion.difficulty,
-    });
+    return null;
   }
 }
 

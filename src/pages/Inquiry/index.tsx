@@ -32,6 +32,7 @@ import StarsRating from '../../components/StarsRating';
 
 interface InquiryParams {
   categoryId: string;
+  categoryName: string;
 }
 
 interface StateRedux {
@@ -51,7 +52,7 @@ const Inquiry: React.FC = () => {
   );
   const [chosenAnswer, setChosenAnswer] = useState('');
 
-  const { categoryId } = useParams<InquiryParams>();
+  const { categoryId, categoryName } = useParams<InquiryParams>();
   const categoryIdNumber = Number(categoryId);
 
   const { level, questions } = useSelector<IState, StateRedux>((state) => {
@@ -76,6 +77,15 @@ const Inquiry: React.FC = () => {
   const numberOfQuestion = useMemo(() => questions.length + 1, [questions]);
 
   useEffect(() => {
+    dispatch(
+      addCategoryToQuiz({
+        id: categoryIdNumber,
+        name: categoryName,
+      }),
+    );
+  }, [dispatch, categoryIdNumber, categoryName]);
+
+  useEffect(() => {
     if (numberOfQuestion > QuizController.MAX_NUMBER_QUESTIONS) {
       history.push(`/${categoryIdNumber}/performance`);
       return;
@@ -87,12 +97,6 @@ const Inquiry: React.FC = () => {
         level,
       );
       setCurrentQuestion(loadedQuestion);
-      dispatch(
-        addCategoryToQuiz({
-          id: categoryIdNumber,
-          name: loadedQuestion.category,
-        }),
-      );
     }
 
     loadQuestion();
@@ -101,14 +105,7 @@ const Inquiry: React.FC = () => {
     return () => {
       removeAllToast();
     };
-  }, [
-    removeAllToast,
-    dispatch,
-    numberOfQuestion,
-    history,
-    level,
-    categoryIdNumber,
-  ]);
+  }, [removeAllToast, numberOfQuestion, history, level, categoryIdNumber]);
 
   const handleChoiceAnswer = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -153,7 +150,7 @@ const Inquiry: React.FC = () => {
         <QuestionHeader>
           <strong>
             Question
-            {` ${numberOfQuestion}`}
+            {` ${numberOfQuestion} - ${currentQuestion.difficulty}`}
           </strong>
           <StarsRating categoryId={categoryIdNumber} />
         </QuestionHeader>
@@ -181,7 +178,7 @@ const Inquiry: React.FC = () => {
             <Link
               to={
                 numberOfQuestion < QuizController.MAX_NUMBER_QUESTIONS
-                  ? `/${categoryIdNumber}/question`
+                  ? `/${categoryIdNumber}/${categoryName}/question`
                   : `/${categoryIdNumber}/performance`
               }
               onClick={handleNextQuestion}

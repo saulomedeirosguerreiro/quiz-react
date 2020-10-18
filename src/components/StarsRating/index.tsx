@@ -63,7 +63,11 @@ const StarsRating: React.FC<StarsRatingProps> = ({ categoryId }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(QuizController.getUpdateLastLevelAction(questions, categoryId));
+    const updateLastLevelAction = QuizController.getUpdateLastLevelAction(
+      questions,
+      categoryId,
+    );
+    updateLastLevelAction && dispatch(updateLastLevelAction);
   }, [questions, categoryId, dispatch]);
 
   return (
