@@ -127,6 +127,20 @@ const Inquiry: React.FC = () => {
   const handleNextQuestion = useCallback(() => {
     const { difficulty, correct_answer } = QuizController.question;
 
+    const updateLastLevelAction = QuizController.getUpdateLastLevelAction(
+      [
+        ...questions,
+        {
+          difficulty,
+          chosen_answer: chosenAnswer,
+          correct_answer,
+          isHit: QuizController.isHit(chosenAnswer),
+        },
+      ],
+      categoryIdNumber,
+    );
+    updateLastLevelAction && dispatch(updateLastLevelAction);
+
     dispatch(
       addQuestionToQuiz(
         {
@@ -138,10 +152,11 @@ const Inquiry: React.FC = () => {
         categoryIdNumber,
       ),
     );
+
     removeAllToast();
     setFocused(false);
     setQuestionAnswered(false);
-  }, [removeAllToast, chosenAnswer, dispatch, categoryIdNumber]);
+  }, [removeAllToast, chosenAnswer, dispatch, categoryIdNumber, questions]);
 
   return (
     <Container>
@@ -150,7 +165,7 @@ const Inquiry: React.FC = () => {
         <QuestionHeader>
           <strong>
             Question
-            {` ${numberOfQuestion} - ${currentQuestion.difficulty}`}
+            {` ${numberOfQuestion}`}
           </strong>
           <StarsRating categoryId={categoryIdNumber} />
         </QuestionHeader>
@@ -161,7 +176,8 @@ const Inquiry: React.FC = () => {
             <Response
               key={answer}
               onClick={(event: MouseEvent<HTMLButtonElement>) =>
-                handleChoiceAnswer(event)}
+                handleChoiceAnswer(event)
+              }
             >
               {answer}
             </Response>

@@ -1,18 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FaStar } from 'react-icons/fa';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Container } from './styles';
 import { IState } from '../../store';
-import { IQuestion } from '../../store/modules/quiz/types';
 import QuizController from '../../controllers/QuizController';
 
 interface StarsRatingProps {
   categoryId: number;
-}
-
-interface StateRedux {
-  level: 'hard' | 'easy' | 'medium';
-  questions: Array<IQuestion>;
 }
 
 const stars = {
@@ -41,34 +35,15 @@ const stars = {
 };
 
 const StarsRating: React.FC<StarsRatingProps> = ({ categoryId }) => {
-  const { level, questions } = useSelector<IState, StateRedux>((state) => {
+  const level = useSelector<IState, 'hard' | 'easy' | 'medium'>((state) => {
     const categoryFound = state.quiz.categories.find(
       (item) => item.id === categoryId,
     );
 
-    const stateRedux = {} as StateRedux;
-    if (categoryFound) {
-      stateRedux.questions = categoryFound.questions;
-      stateRedux.level = categoryFound.lastLevel
-        ? categoryFound.lastLevel
-        : QuizController.INITIAL_LEVEL;
-    } else {
-      stateRedux.questions = [];
-      stateRedux.level = QuizController.INITIAL_LEVEL;
-    }
-
-    return stateRedux;
+    if (categoryFound && categoryFound.lastLevel)
+      return categoryFound.lastLevel;
+    return QuizController.INITIAL_LEVEL;
   });
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const updateLastLevelAction = QuizController.getUpdateLastLevelAction(
-      questions,
-      categoryId,
-    );
-    updateLastLevelAction && dispatch(updateLastLevelAction);
-  }, [questions, categoryId, dispatch]);
 
   return (
     <Container>
