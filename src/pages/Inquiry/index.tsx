@@ -110,7 +110,7 @@ const Inquiry: React.FC = () => {
   const handleChoiceAnswer = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       setFocused(true);
-      setChosenAnswer(event.currentTarget.innerHTML);
+      setChosenAnswer(event.currentTarget.value);
     },
     [],
   );
@@ -175,6 +175,7 @@ const Inquiry: React.FC = () => {
         <ResponseOptions>
           {currentQuestion.answers?.map((answer) => (
             <Response
+              value={answer}
               key={answer}
               onClick={(event: MouseEvent<HTMLButtonElement>) =>
                 handleChoiceAnswer(event)
