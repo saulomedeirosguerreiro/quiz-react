@@ -4,9 +4,10 @@ import { shade } from 'polished';
 export const Container = styled.div``;
 
 export const Title = styled.div`
+  width: 75vw;
   color: #353c58;
-  margin: 1em 15em 1em 1em;
-  text-align: center;
+  margin: 1em 0em;
+  text-align: left;
 `;
 
 export const Categories = styled.ul`
@@ -19,8 +20,12 @@ export const Categories = styled.ul`
     display: none;
   }
 
+  li {
+    list-style-type: none;
+  }
+
   a {
-    width: 300px;
+    width: 75vw;
     padding: 10px;
     border-radius: 10px;
     text-decoration: none;

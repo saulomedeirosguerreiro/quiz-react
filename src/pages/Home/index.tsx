@@ -25,10 +25,12 @@ const Home: React.FC = () => {
   return (
     <Container>
       <Header title="Dev Mobile" />
-      <Title>
-        <h4>Categories</h4>
-      </Title>
       <Categories>
+        <li>
+          <Title>
+            <h4>Categories</h4>
+          </Title>
+        </li>
         {categories.map((category) => (
           <Link
             key={category.id}

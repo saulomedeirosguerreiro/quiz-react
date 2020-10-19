@@ -126,6 +126,7 @@ const Inquiry: React.FC = () => {
 
   const handleNextQuestion = useCallback(() => {
     const { difficulty, correct_answer } = QuizController.question;
+    const isHit = QuizController.isHit(chosenAnswer);
 
     const updateLastLevelAction = QuizController.getUpdateLastLevelAction(
       [
@@ -134,7 +135,7 @@ const Inquiry: React.FC = () => {
           difficulty,
           chosen_answer: chosenAnswer,
           correct_answer,
-          isHit: QuizController.isHit(chosenAnswer),
+          isHit,
         },
       ],
       categoryIdNumber,
@@ -147,7 +148,7 @@ const Inquiry: React.FC = () => {
           difficulty,
           chosen_answer: chosenAnswer,
           correct_answer,
-          isHit: QuizController.isHit(chosenAnswer),
+          isHit,
         },
         categoryIdNumber,
       ),

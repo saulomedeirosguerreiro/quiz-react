@@ -21,15 +21,15 @@ const stars = {
     <>
       <FaStar color="#353c58" />
       <FaStar color="#353c58" />
-      <FaStar color="#d3d3d3" />
+      <FaStar color="#b0b0b0" />
     </>
   ),
 
   easy: (
     <>
       <FaStar color="#353c58" />
-      <FaStar color="#d3d3d3" />
-      <FaStar color="#d3d3d3" />
+      <FaStar color="#b0b0b0" />
+      <FaStar color="#b0b0b0" />
     </>
   ),
 };
