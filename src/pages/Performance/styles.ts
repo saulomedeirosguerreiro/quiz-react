@@ -11,6 +11,7 @@ export const Content = styled.div`
   height: 80vh;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 
   span {
     display: block;
@@ -18,18 +19,17 @@ export const Content = styled.div`
 `;
 
 export const Avatar = styled.div`
-  flex: 0.5;
   width: 60vw;
   display: flex;
   align-items: center;
   margin-top: 0.5em;
+
   img {
     width: 20vw;
   }
 `;
 
 export const OverallResult = styled.div`
-  flex: 0.25;
   width: 60vw;
   display: flex;
   flex-direction: row;

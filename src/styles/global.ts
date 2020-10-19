@@ -12,11 +12,19 @@ export default createGlobalStyle`
       body{
         font-size: 2vw;
       }
+
+      button {
+        font-size: 1.8vw;
+      }
     }
 
     @media screen and (min-width: 75em) {
       body {
         font-size: 1.5em;
+      }
+
+      button {
+        font-size: 1.3em;
       }
     }
 
@@ -40,6 +48,6 @@ export default createGlobalStyle`
 
     button {
         cursor:pointer;
-        font-size: calc(0.5em + 1vw);
+        font-size: calc(0.6em + 1vw);
     }
 `;
