@@ -47,7 +47,9 @@ class QuizController {
       incorrect_answers,
       correct_answer,
     } = results[0] as Omit<IQuestionAPI, 'answers'>;
-    const answers = [...incorrect_answers, correct_answer];
+    const answers = [...incorrect_answers, correct_answer].sort(
+      () => Math.random() - 0.5,
+    );
 
     QuizController.question = {
       category,
