@@ -1,44 +1,86 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Quiz
 
-## Available Scripts
+Quiz is ReactJS (Version: 16.13.1) project, cloud-enabled and mobile-ready
 
-In the project directory, you can run:
+Quiz uses a number of libraries:
 
-### `yarn start`
+* v24.0.0 [jest] - A delightful JavaScript Testing Framework with a focus on simplicity
+* v0.20.0 [axios] - Promise based HTTP client for the browser and node.js
+* v7.0.9 [immer] -  Create the next immutable state tree by simply modifying the current tree
+* v4.0.2 [polished] - A lightweight toolset for writing styles in JavaScript
+* v4.0.5 [redux] - A predictable state container for JS Apps
+* v5.2.0 [styled-components] -  Allows you to write actual CSS code to style your components
+* v8.3.1 [uuid] -  To create a random UUID
+* v3.7.2 [typescript] - TypeScript extends JavaScript by adding types.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
 
-### `yarn test`
+### Installation
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Quiz requires [Node.js](https://nodejs.org/) v12+ and [Yarn](https://yarnpkg.com/) v1.+ to run.
 
-### `yarn build`
+Install the dependencies and devDependencies
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```sh
+$ cd quiz-react
+$ yarn
+```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Note: Create the .env file and fill in the REACT_APP_API_URL variable
+with the address of the Public API "https://opentdb.com" like .env.example file
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Start the server
+```sh
+$ yarn start
+```
 
-### `yarn eject`
+Congratulations ! The project is running.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Deploy
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+##### Automated Deploy
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The cloud application platform called Heroku was used to automatically deploy and host the application in the cloud.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Access link: https://frontend-quiz-react.herokuapp.com
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+##### Manual Deploy
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+
+Install and Configure nginx
+
+- [Install nginx](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/)
+- [How to Install Nginx on Ubuntu](https://www.digitalocean.com/community/tutorials/como-instalar-o-nginx-no-ubuntu-18-04-pt)
+
+Start the nginx
+```sh
+$ sudo systemctl start nginx
+```
+
+Access the project directory
+
+```sh
+$ cd quiz-react
+```
+
+Generate the application build
+
+```sh
+$ yarn build
+```
+
+Note : A folder called "build" will be created in the project and you must send it to the path "/ var / www"
+
+###### Final Step
+Open the browser and put the ip and port configured in nginx for the application.
+Congratulations ! You were able to deploy the system.
+
+### Tests (unit and UI)
+
+Access the project directory and run all tests
+
+```sh
+$ cd quiz-react
+$ yarn test a
+```
