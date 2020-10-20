@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import { ToastProvider, useToast } from '../../context/ToastContext';
 
 describe('Toast Context', () => {
-  it('should be able to add toast', async () => {
+  it('should be able to add toast', () => {
     const { result } = renderHook(() => useToast(), {
       wrapper: ToastProvider,
     });
@@ -15,7 +15,7 @@ describe('Toast Context', () => {
     expect(result.current.messages[0].title).toEqual('title of toast');
   });
 
-  it('should be able to remove all toasts', async () => {
+  it('should be able to remove all toasts', () => {
     const { result } = renderHook(() => useToast(), {
       wrapper: ToastProvider,
     });
