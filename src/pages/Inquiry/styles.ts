@@ -57,7 +57,7 @@ export const Response = styled.button`
   }
 
   &:hover {
-    background-color: ${shade(0.1, '#fff')};
+    background-color: #fff;
   }
 `;
 
