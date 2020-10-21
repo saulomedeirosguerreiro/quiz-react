@@ -11,7 +11,7 @@ export const Content = styled.div`
 `;
 
 export const QuestionHeader = styled.div`
-  width: 65vw;
+  width: 90vw;
   max-width: 930px;
   display: flex;
   align-items: center;
@@ -21,7 +21,7 @@ export const QuestionHeader = styled.div`
 `;
 
 export const Question = styled.p`
-  width: 65vw;
+  width: 90vw;
   max-width: 930px;
   text-align: justify;
   margin: 1em;
@@ -35,16 +35,19 @@ export const ResponseOptions = styled.ul`
 `;
 
 export const Response = styled.button`
-  width: 65vw;
+  width: 90vw;
   max-width: 930px;
   padding: 10px;
+  height: 12vh;
   border-radius: 10px;
   text-decoration: none;
   border: 2px solid #d3d3d3;
   color: #000;
   background-color: #fff;
   text-align: justify;
-
+  white-space: normal !important;
+  word-wrap: break-word;
+  box-shadow: 1px 1px 1px 1px #d3d3d3;
   & + button {
     margin-top: 15px;
   }
@@ -71,7 +74,7 @@ export const Footer = styled.footer`
   z-index: 1;
 
   a {
-    width: 65vw;
+    width: 90vw;
     max-width: 930px;
     background-color: #4d8af0;
     color: #fff;
@@ -96,7 +99,7 @@ export const Footer = styled.footer`
   }
 
   button {
-    width: 65vw;
+    width: 90vw;
     max-width: 930px;
     background-color: #4d8af0;
     color: #fff;
